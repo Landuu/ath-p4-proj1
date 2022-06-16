@@ -16,13 +16,14 @@ namespace ath_p4_proj1
                 "1. Pracownicy",
                 "2. Urządzenia",
                 "3. Historia urządzeń"
-            }, false);
+            });
 
             options[(int)Position.Employees] = new ConsolePath(new string[] {"Pracownicy"}, new string[]
             {
-                "1. Dodaj pracownika",
-                "2. Edytuj pracownika",
-                "3. Usuń pracownika"
+                "1. Lista pracowników",
+                "2. Dodaj pracownika",
+                "3. Edytuj pracownika",
+                "4. Usuń pracownika"
             });
 
             options[(int)Position.Devices] = new ConsolePath(new string[] { "Urządzenia" }, new string[]
@@ -67,8 +68,7 @@ namespace ath_p4_proj1
             {
                 Console.WriteLine(option.Choices[i]);
             }
-            if (option.PrintControls) Console.WriteLine($"{option.Choices.Length + 1}. <- Powrót");
-            Console.WriteLine("0. [X] Exit");
+            Console.WriteLine("0. <- Powrót");
         }
     }
 }

@@ -9,6 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ConsoleMenu-simple" Version="2.4.3" />
+    <PackageReference Include="ConsoleTools" Version="1.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.6" />
   </ItemGroup>
