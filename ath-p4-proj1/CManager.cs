@@ -102,6 +102,12 @@ namespace ath_p4_proj1
                         item.Name = EmployeeAddNames.Id;
                         break;
                     }
+                    if (!Validator.NumericId(id))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     employee.EmployeeId = Convert.ToInt32(id);
                     item.Name = EmployeeAddNames.Id + id;
                     break;
@@ -211,6 +217,12 @@ namespace ath_p4_proj1
                         item.Name = HistoryCheckNames.DeviceId + "\n";
                         break;
                     }
+                    if (!Validator.NumericId(idd))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     device.DeviceId = Convert.ToInt32(idd);
                     item.Name = HistoryCheckNames.DeviceId + idd + "\n";
                     break;
@@ -304,6 +316,12 @@ namespace ath_p4_proj1
                         item.Name = HistoryReturnNames.DeviceId + "\n";
                         break;
                     }
+                    if (!Validator.NumericId(idd))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     device.DeviceId = Convert.ToInt32(idd);
                     item.Name = HistoryReturnNames.DeviceId + idd + "\n";
                     break;
@@ -353,6 +371,12 @@ namespace ath_p4_proj1
                         item.Name = HistoryAssignNames.DeviceId;
                         break;
                     }
+                    if (!Validator.NumericId(idd))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     device.DeviceId = Convert.ToInt32(idd);
                     item.Name = HistoryAssignNames.DeviceId + idd;
                     break;
@@ -362,6 +386,12 @@ namespace ath_p4_proj1
                     {
                         employee.EmployeeId = 0;
                         item.Name = HistoryAssignNames.EmployeeID + "\n";
+                        break;
+                    }
+                    if (!Validator.NumericId(ide))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
                         break;
                     }
                     employee.EmployeeId = Convert.ToInt32(ide);
@@ -430,21 +460,69 @@ namespace ath_p4_proj1
             {
                 case EmployeeAddAction.FirstName:
                     string fn = StringValue.QuickRead(EmployeeAddNames.FirstName);
+                    if (fn == "")
+                    {
+                        employee.FirstName = fn;
+                        item.Name = EmployeeAddNames.FirstName;
+                        break;
+                    }
+                    if (!Validator.Name(fn))
+                    {
+                        StringValue.QuickWrite("Błąd:", "Niepoprawne imię");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     employee.FirstName = fn;
                     item.Name = EmployeeAddNames.FirstName + fn;
                     break;
                 case EmployeeAddAction.LastName:
                     string ln = StringValue.QuickRead(EmployeeAddNames.LastName);
+                    if (ln == "")
+                    {
+                        employee.LastName = ln;
+                        item.Name = EmployeeAddNames.LastName;
+                        break;
+                    }
+                    if (!Validator.Name(ln))
+                    {
+                        StringValue.QuickWrite("Błąd:", "Niepoprawne nazwisko");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     employee.LastName = ln;
                     item.Name = EmployeeAddNames.LastName + ln;
                     break;
                 case EmployeeAddAction.Phone:
                     string p = StringValue.QuickRead(EmployeeAddNames.PhoneNumber);
+                    if (p == "")
+                    {
+                        employee.PhoneNumber = p;
+                        item.Name = EmployeeAddNames.PhoneNumber;
+                        break;
+                    }
+                    if (!Validator.PhoneNumber(p))
+                    {
+                        StringValue.QuickWrite("Błąd:", "Niepoprawny numer telefonu");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     employee.PhoneNumber = p;
                     item.Name = EmployeeAddNames.PhoneNumber + p;
                     break;
                 case EmployeeAddAction.Email:
                     string e = StringValue.QuickRead(EmployeeAddNames.PhoneNumber);
+                    if (e == "")
+                    {
+                        employee.Email = e;
+                        item.Name = EmployeeAddNames.Email + "\n";
+                        break;
+                    }
+                    if (!Validator.Email(e))
+                    {
+                        StringValue.QuickWrite("Błąd:", "Niepoprawny adres email");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     employee.Email = e;
                     item.Name = EmployeeAddNames.Email + e + "\n";
                     break;
@@ -485,6 +563,12 @@ namespace ath_p4_proj1
                     {
                         device.DeviceId = 0;
                         item.Name = EmployeeRemoveNames.Id;
+                        break;
+                    }
+                    if (!Validator.NumericId(id))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
                         break;
                     }
                     employee.EmployeeId = Convert.ToInt32(id);
@@ -633,6 +717,12 @@ namespace ath_p4_proj1
                         item.Name = DeviceRemoveNames.Id;
                         break;
                     }
+                    if (!Validator.NumericId(id))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
+                        break;
+                    }
                     device.DeviceId = Convert.ToInt32(id);
                     item.Name = DeviceRemoveNames.Id + id + "\n";
                     break;
@@ -681,6 +771,12 @@ namespace ath_p4_proj1
                         item.Name = DeviceRemoveNames.Id;
                         break;
                     }
+                    if(!Validator.NumericId(id))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
+                        break;
+                    } 
                     device.DeviceId = Convert.ToInt32(id);
                     item.Name = DeviceRemoveNames.Id + id + "\n";
                     break;

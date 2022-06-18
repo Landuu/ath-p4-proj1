@@ -13,9 +13,10 @@ namespace ath_p4_proj1
         {
             var regex = new Regex("^[0-9]+$");
 
-            if (String.IsNullOrEmpty(value)) return false;
+            if (string.IsNullOrEmpty(value)) return false;
             if (!regex.IsMatch(value)) return false;
             if (value.Length > maxLength) return false;
+            if (Convert.ToInt32(value) <= 0) return false; 
             return true;
         }
 
@@ -23,7 +24,7 @@ namespace ath_p4_proj1
         {
             var regex = new Regex("^[0-9]+$");
 
-            if (String.IsNullOrEmpty(value)) return false;
+            if (string.IsNullOrEmpty(value)) return false;
             if (!regex.IsMatch(value)) return false;
             if(value.Length != length) return false;
             return true;
@@ -33,7 +34,7 @@ namespace ath_p4_proj1
         {
             var regex = new Regex(@"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
 
-            if (String.IsNullOrEmpty(value)) return false;
+            if (string.IsNullOrEmpty(value)) return false;
             if (!regex.IsMatch(value)) return false;
             return true;
         }
@@ -42,7 +43,7 @@ namespace ath_p4_proj1
         {
             var regex = new Regex("^[A-Za-z][A-Za-z0-9_]{1,50}$");
 
-            if (String.IsNullOrEmpty(value)) return false;
+            if (string.IsNullOrEmpty(value)) return false;
             if (!regex.IsMatch(value)) return false;
             return true;
         }
