@@ -2,11 +2,30 @@
 {
     internal class Employee
     {
-        public int EmployeeId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string PhoneNumber { get; set; }
-        public string Email { get; set; }
+        public int? EmployeeId { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? Email { get; set; }
+
+        public bool IsOnePopulatedWithoutId =>
+            !string.IsNullOrEmpty(FirstName)
+            || !string.IsNullOrEmpty(LastName)
+            || !string.IsNullOrEmpty(PhoneNumber)
+            || !string.IsNullOrEmpty(Email);
+
+        public bool IsPopulatedWithoutId => 
+            !string.IsNullOrEmpty(FirstName)
+            && !string.IsNullOrEmpty(LastName)
+            && !string.IsNullOrEmpty(PhoneNumber)
+            && !string.IsNullOrEmpty(Email);
+        public bool IsOnePopulated =>
+            EmployeeId is not null
+            || IsOnePopulatedWithoutId;
+        public bool IsPopulated =>
+            EmployeeId is not null
+            && IsPopulatedWithoutId;
+
 
         public Employee() { }
 
@@ -18,22 +37,13 @@
             Email = email;
         }
 
-        public bool IsPopulated()
-        {
-            return !(
-                String.IsNullOrEmpty(FirstName)
-                && String.IsNullOrEmpty(LastName)
-                && String.IsNullOrEmpty(PhoneNumber)
-                && String.IsNullOrEmpty(Email)
-            );
-        }
-
         public void Clear()
         {
-            FirstName = "";
-            LastName = "";
-            PhoneNumber = "";
-            Email = "";
+            EmployeeId = null;
+            FirstName = null;
+            LastName = null;
+            PhoneNumber = null;
+            Email = null;
         }
     }
 }
