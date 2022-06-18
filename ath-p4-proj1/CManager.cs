@@ -3,7 +3,7 @@ using ConsoleTools;
 using DustInTheWind.ConsoleTools.Controls;
 using DustInTheWind.ConsoleTools.Controls.InputControls;
 using DustInTheWind.ConsoleTools.Controls.Tables;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace ath_p4_proj1
 {
@@ -98,7 +98,7 @@ namespace ath_p4_proj1
                     string id = StringValue.QuickRead(EmployeeAddNames.Id);
                     if (id == "")
                     {
-                        employee.EmployeeId = null;
+                        employee.EmployeeId = 0;
                         item.Name = EmployeeAddNames.Id;
                         break;
                     }
@@ -160,7 +160,7 @@ namespace ath_p4_proj1
 
 
                         var employees = db.Employees
-                            .WhereIf(employee.EmployeeId is not null, x => x.EmployeeId == employee.EmployeeId)
+                            .WhereIf(employee.EmployeeId != 0, x => x.EmployeeId == employee.EmployeeId)
                             .WhereIf(!string.IsNullOrEmpty(employee.FirstName), x => x.FirstName.Contains(employee.FirstName))
                             .WhereIf(!string.IsNullOrEmpty(employee.LastName), x => x.LastName.Contains(employee.LastName))
                             .WhereIf(!string.IsNullOrEmpty(employee.PhoneNumber), x => x.PhoneNumber.Contains(employee.PhoneNumber))
@@ -194,7 +194,231 @@ namespace ath_p4_proj1
 
                     EmployeeSearch(EmployeeSearchAction.Clear, items: items);
                     break;
+            }
+        }
 
+        public void DeviceHistoryCheck(HistoryCheckAction action, MenuItem? item = null, IReadOnlyList<MenuItem>? items = null)
+        {
+            using var db = new InventoryDbContext();
+
+            switch (action)
+            {
+                case HistoryCheckAction.DeviceId:
+                    string idd = StringValue.QuickRead(HistoryCheckNames.DeviceId);
+                    if (idd == "")
+                    {
+                        device.DeviceId = 0;
+                        item.Name = HistoryCheckNames.DeviceId + "\n";
+                        break;
+                    }
+                    device.DeviceId = Convert.ToInt32(idd);
+                    item.Name = HistoryCheckNames.DeviceId + idd + "\n";
+                    break;
+                case HistoryCheckAction.Clear:
+                    device.Clear();
+                    items[1].Name = HistoryCheckNames.DeviceId + "\n";
+                    break;
+                case HistoryCheckAction.Confirm:
+                    var d = db.Devices
+                        .Where(x => x.DeviceId == device.DeviceId)
+                        .Include(x => x.History)
+                        .ThenInclude(x => x.Employee)
+                        .FirstOrDefault();
+                    if (d is null)
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Urządzenie o podanym ID nie istnieje w bazie danych!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    int skip = 0;
+                    int take = 5;
+                    int count = 0;
+
+                    while (true)
+                    {
+                        Console.Clear();
+                        PrintHeader("Zarządzanie urządzeniami / Lista właścicieli danego urzadzenia / Lista");
+
+                        var tableDevice = new DataGrid();
+                        tableDevice.Border.Template = BorderTemplate.SingleLineBorderTemplate;
+                        tableDevice.Columns.Add("ID Urządzenia");
+                        tableDevice.Columns.Add("Producent");
+                        tableDevice.Columns.Add("Model");
+                        tableDevice.Columns.Add("Numer seryjny");
+                        tableDevice.Columns.Add("Data wprowadzenia");
+                        tableDevice.Columns.Add("Data wykluczenia");
+
+                        var table = new DataGrid();
+                        table.Border.Template = BorderTemplate.SingleLineBorderTemplate;
+                        table.Columns.Add("L.p.");
+                        table.Columns.Add("ID Pracownika");
+                        table.Columns.Add("Imię i nazwisko");
+                        table.Columns.Add("Data przypisania");
+                        table.Columns.Add("Data zwrócenia");
+
+                        var deol = d.DateOfEOL is null ? "null" : d.DateOfEOL.ToString();
+                        tableDevice.Rows.Add(d.DeviceId, d.Manufacturer, d.Model, d.SerialNumber, d.DateOfService, deol);
+
+                        for(int i = 0; i < d.History.Count; i++)
+                        {
+                            var h = d.History[i];
+                            var dr = h.DateOfReturn is null ? "null" : h.DateOfReturn.ToString();
+                            table.Rows.Add(i + 1 + skip, h.Employee.EmployeeId, $"{h.Employee.FirstName} {h.Employee.LastName}", h.DateOfAssignment, dr);
+                        }
+
+                        tableDevice.Display();
+                        table.Display();
+
+                        var key = Console.ReadKey().Key;
+                        if (key == ConsoleKey.PageUp)
+                        {
+                            if (skip + take > count) continue;
+                            skip += take;
+                        }
+                        else if (key == ConsoleKey.PageDown)
+                        {
+                            if (skip - take < 0) continue;
+                            skip -= take;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        public void DeviceHistoryReturn(HistoryReturnAction action, MenuItem? item = null, IReadOnlyList<MenuItem>? items = null)
+        {
+            using var db = new InventoryDbContext();
+
+            switch (action)
+            {
+                case HistoryReturnAction.DeviceId:
+                    string idd = StringValue.QuickRead(HistoryReturnNames.DeviceId);
+                    if (idd == "")
+                    {
+                        device.DeviceId = 0;
+                        item.Name = HistoryReturnNames.DeviceId + "\n";
+                        break;
+                    }
+                    device.DeviceId = Convert.ToInt32(idd);
+                    item.Name = HistoryReturnNames.DeviceId + idd + "\n";
+                    break;
+                case HistoryReturnAction.Clear:
+                    device.Clear();
+                    items[1].Name = HistoryAssignNames.DeviceId + "\n";
+                    break;
+                case HistoryReturnAction.Confirm:
+                    var d = db.Devices.Where(x => x.DeviceId == device.DeviceId).FirstOrDefault();
+                    if (d is null)
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Urządzenie o podanym ID nie istnieje w bazie danych!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    var dIsAssigned = db.DeviceHistories
+                        .Where(x => x.DeviceId == device.DeviceId)
+                        .Where(x => x.DateOfReturn == null)
+                        .FirstOrDefault();
+                    if (dIsAssigned is null)
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Urządzenie o podanym ID zostało już zwrócone!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    dIsAssigned.DateOfReturn = DateTime.UtcNow;
+                    db.SaveChanges();
+                    DeviceHistoryReturn(HistoryReturnAction.Clear, items: items);
+                    StringValue.QuickWrite("Ok: ", "Zwrócono urządzenie");
+                    Pause.QuickDisplay();
+                    break;
+            }
+        }
+
+        public void DeviceHistoryAssign(HistoryAssignAction action, MenuItem? item = null, IReadOnlyList<MenuItem>? items = null)
+        {
+            using var db = new InventoryDbContext();
+
+            switch (action) {
+                case HistoryAssignAction.DeviceId:
+                    string idd = StringValue.QuickRead(HistoryAssignNames.DeviceId);
+                    if (idd == "")
+                    {
+                        device.DeviceId = 0;
+                        item.Name = HistoryAssignNames.DeviceId;
+                        break;
+                    }
+                    device.DeviceId = Convert.ToInt32(idd);
+                    item.Name = HistoryAssignNames.DeviceId + idd;
+                    break;
+                case HistoryAssignAction.EmployeeId:
+                    string ide = StringValue.QuickRead(HistoryAssignNames.EmployeeID);
+                    if (ide == "")
+                    {
+                        employee.EmployeeId = 0;
+                        item.Name = HistoryAssignNames.EmployeeID + "\n";
+                        break;
+                    }
+                    employee.EmployeeId = Convert.ToInt32(ide);
+                    item.Name = HistoryAssignNames.EmployeeID + ide + "\n";
+                    break;
+                case HistoryAssignAction.Clear:
+                    employee.Clear();
+                    device.Clear();
+                    items[1].Name = HistoryAssignNames.DeviceId;
+                    items[2].Name = HistoryAssignNames.EmployeeID + "\n";
+                    break;
+                case HistoryAssignAction.Confirm:
+                    var d = db.Devices.Where(x => x.DeviceId == device.DeviceId).FirstOrDefault();
+                    if(d is null)
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Urządzenie o podanym ID nie istnieje w bazie danych!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    if(d.DateOfEOL is not null)
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Urządzenie o podanym ID jest zarchiwizowane, nie możesz go przypisać!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    var dIsAssigned = db.DeviceHistories
+                        .Where(x => x.DeviceId == device.DeviceId)
+                        .Where(x => x.DateOfReturn == null)
+                        .FirstOrDefault();
+                    if(dIsAssigned is not null)
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Urządzenie o podanym ID jest już przypisane do innego pracownika!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    var e = db.Employees.Where(x => x.EmployeeId == employee.EmployeeId).FirstOrDefault();
+                    if (e is null)
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Pracownik o podanym ID nie istnieje w bazie danych!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    var h = new Models.DeviceHistory();
+                    h.DateOfAssignment = DateTime.UtcNow;
+                    h.Employee = e;
+                    h.Device = d;
+                    db.DeviceHistories.Add(h);
+                    db.SaveChanges();
+                    DeviceHistoryAssign(HistoryAssignAction.Clear, items: items);
+                    StringValue.QuickWrite("Ok: ", "Przypisano urządzenie do użytkownika");
+                    Pause.QuickDisplay();
+
+                    break;
             }
         }
 
@@ -259,7 +483,7 @@ namespace ath_p4_proj1
                     string id = StringValue.QuickRead(EmployeeAddNames.Id);
                     if (id == "")
                     {
-                        device.DeviceId = null;
+                        device.DeviceId = 0;
                         item.Name = EmployeeRemoveNames.Id;
                         break;
                     }
@@ -393,7 +617,6 @@ namespace ath_p4_proj1
                     Pause.QuickDisplay();
                     break;
             }
-
         }
 
         public void DeviceRemove(DeviceRemoveAction action, MenuItem? item = null, IReadOnlyList<MenuItem>? items = null)
@@ -406,7 +629,7 @@ namespace ath_p4_proj1
                     string id = StringValue.QuickRead(EmployeeAddNames.Id);
                     if (id == "")
                     {
-                        device.DeviceId = null;
+                        device.DeviceId = 0;
                         item.Name = DeviceRemoveNames.Id;
                         break;
                     }
@@ -439,6 +662,64 @@ namespace ath_p4_proj1
                     db.SaveChanges();
                     DeviceRemove(DeviceRemoveAction.Clear, items: items);
                     StringValue.QuickWrite("Ok:", "Usunięto rekord z bazy danych");
+                    Pause.QuickDisplay();
+                    break;
+            }
+        }
+
+        public void DeviceArchive(DeviceRemoveAction action, MenuItem? item = null, IReadOnlyList<MenuItem>? items = null)
+        {
+            using var db = new InventoryDbContext();
+
+            switch (action)
+            {
+                case DeviceRemoveAction.Id:
+                    string id = StringValue.QuickRead(EmployeeAddNames.Id);
+                    if (id == "")
+                    {
+                        device.DeviceId = 0;
+                        item.Name = DeviceRemoveNames.Id;
+                        break;
+                    }
+                    device.DeviceId = Convert.ToInt32(id);
+                    item.Name = DeviceRemoveNames.Id + id + "\n";
+                    break;
+                case DeviceRemoveAction.Clear:
+                    device.Clear();
+                    items[1].Name = DeviceRemoveNames.Id + "\n";
+                    break;
+                case DeviceRemoveAction.Confirm:
+                    if (!device.IsOnePopulated)
+                    {
+                        StringValue.QuickWrite("Błąd!", "Musisz wypełnic wszystkie pola!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    var d = db.Devices
+                        .Where(x => x.DeviceId == device.DeviceId)
+                        .Include(x => x.History)
+                        .FirstOrDefault();
+
+                    if(d is null)
+                    {
+                        StringValue.QuickWrite("Błąd:", "Urządzenie o podanym ID nie istnieje w bazie danych!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    var dIsAssigned = d.History.Where(x => x.DateOfReturn is null).FirstOrDefault();
+                    if(dIsAssigned is not null)
+                    {
+                        StringValue.QuickWrite("Błąd:", "Urządzenie o podanym ID jest w posiadaniu pracownika, musisz najpierw zwrócić urządzneie!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    d.DateOfEOL = DateTime.UtcNow;
+                    db.SaveChanges();
+                    DeviceArchive(DeviceRemoveAction.Clear, items: items);
+                    StringValue.QuickWrite("Ok:", "Zarchiwizowano urządzenie");
                     Pause.QuickDisplay();
                     break;
             }

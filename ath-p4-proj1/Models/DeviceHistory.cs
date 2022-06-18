@@ -9,6 +9,6 @@ namespace ath_p4_proj1.Models
         public int EmployeeId { get; set; }
         public Employee Employee { get; set; }
         public DateTime DateOfAssignment { get; set; }
-        public DateTime DateOfReturn { get; set; }
+        public DateTime? DateOfReturn { get; set; }
     }
 }

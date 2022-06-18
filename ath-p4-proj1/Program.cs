@@ -1,7 +1,6 @@
 ﻿using ath_p4_proj1;
 using ath_p4_proj1.Enums;
 using ConsoleTools;
-using DustInTheWind.ConsoleTools.Controls;
 
 using var context = new InventoryDbContext();
 context.Database.EnsureCreated();
@@ -64,7 +63,7 @@ var menuEmployeesRemove = new ConsoleMenu(args, level: 2)
     })
     .Add(EmployeeRemoveNames.Id + "\n", (thisMenu) => manager.EmployeeRemove(EmployeeRemoveAction.Id, thisMenu.CurrentItem))
     .Add("Wyczyść pola", (thisMenu) => manager.EmployeeRemove(EmployeeRemoveAction.Clear, items: thisMenu.Items))
-    .Add("Dodaj", (thisMenu) => manager.EmployeeRemove(EmployeeRemoveAction.Confirm, items: thisMenu.Items))
+    .Add("Usuń", (thisMenu) => manager.EmployeeRemove(EmployeeRemoveAction.Confirm, items: thisMenu.Items))
     .Configure(config =>
     {
         config.Title = "Pracownicy / Usuń pracownika \n";
@@ -77,8 +76,7 @@ var menuEmployees = new ConsoleMenu(args, level: 1)
     .Add("Lista pracowników", () => manager.EmployeeList())
     .Add("Wyszukaj pracownika", () => menuEmployeesSearch.Show())
     .Add("Dodaj pracownika", () => menuEmployeesAdd.Show())
-    .Add("Edytuj pracowika", () => { })
-    .Add("Usuń pracownika \n", () => menuEmployeesRemove.Show())
+    .Add("X Usuń pracownika \n", () => menuEmployeesRemove.Show())
     .Add("Powrót", ConsoleMenu.Close)
     .Configure(config =>
     {
@@ -92,6 +90,23 @@ var menuEmployees = new ConsoleMenu(args, level: 1)
 
 // Urządzenia
 
+var menuDevicesArchive = new ConsoleMenu(args, level: 2)
+    .Add("Powrót \n", (thisMenu) =>
+    {
+        manager.DeviceRemove(DeviceRemoveAction.Clear, items: thisMenu.Items);
+        thisMenu.CloseMenu();
+    })
+    .Add(DeviceRemoveNames.Id + "\n", (thisMenu) => manager.DeviceArchive(DeviceRemoveAction.Id, thisMenu.CurrentItem))
+    .Add("Wyczyść pola", (thisMenu) => manager.DeviceArchive(DeviceRemoveAction.Clear, items: thisMenu.Items))
+    .Add("Usuń", (thisMenu) => manager.DeviceArchive(DeviceRemoveAction.Confirm, items: thisMenu.Items))
+    .Configure(config =>
+    {
+        config.Title = "Urządzenia / Wyłącz z użytku (archiwizacja) \n";
+        config.EnableWriteTitle = true;
+        config.WriteHeaderAction = menuHeaderAction;
+        config.Selector = menuSelector;
+    });
+
 var menuDevicesRemove = new ConsoleMenu(args, level: 2)
     .Add("Powrót \n", (thisMenu) =>
     {
@@ -100,7 +115,7 @@ var menuDevicesRemove = new ConsoleMenu(args, level: 2)
     })
     .Add(DeviceRemoveNames.Id + "\n", (thisMenu) => manager.DeviceRemove(DeviceRemoveAction.Id, thisMenu.CurrentItem))
     .Add("Wyczyść pola", (thisMenu) => manager.DeviceRemove(DeviceRemoveAction.Clear, items: thisMenu.Items))
-    .Add("Dodaj", (thisMenu) => manager.DeviceRemove(DeviceRemoveAction.Confirm, items: thisMenu.Items))
+    .Add("Usuń", (thisMenu) => manager.DeviceRemove(DeviceRemoveAction.Confirm, items: thisMenu.Items))
     .Configure(config =>
     {
         config.Title = "Urządzenia / Usuń urządzenie \n";
@@ -131,8 +146,8 @@ var menuDevicesAdd = new ConsoleMenu(args, level: 2)
 var menuDevices = new ConsoleMenu(args, level: 1)
     .Add("Lista urządzeń", () => manager.DevicesList())
     .Add("Dodaj urządzenie", () => menuDevicesAdd.Show())
-    .Add("Edytuj urządzenie", () => { })
-    .Add("Usuń urządzenie \n", () => menuDevicesRemove.Show())
+    .Add("Wyłącz z użytku (archiwizacja)", () => menuDevicesArchive.Show())
+    .Add("X Usuń urządzenie \n", () => menuDevicesRemove.Show())
     .Add("Powrót", ConsoleMenu.Close)
     .Configure(config =>
     {
@@ -146,15 +161,66 @@ var menuDevices = new ConsoleMenu(args, level: 1)
 
 // Historia urządzeń
 
+var menuHistoryCheck = new ConsoleMenu(args, level: 2)
+    .Add("Powrót \n", (thisMenu) =>
+    {
+        manager.DeviceHistoryCheck(HistoryCheckAction.Clear, items: thisMenu.Items);
+        thisMenu.CloseMenu();
+    })
+    .Add(HistoryCheckNames.DeviceId + "\n", (thisMenu) => manager.DeviceHistoryCheck(HistoryCheckAction.DeviceId, thisMenu.CurrentItem))
+    .Add("Wyczyść pola", (thisMenu) => manager.DeviceHistoryCheck(HistoryCheckAction.Clear, items: thisMenu.Items))
+    .Add("Sprawdź", (thisMenu) => manager.DeviceHistoryCheck(HistoryCheckAction.Confirm, items: thisMenu.Items))
+    .Configure(config =>
+    {
+        config.Title = "Zarządzanie urządzeniami / Lista właścicieli danego urzadzenia \n";
+        config.EnableWriteTitle = true;
+        config.WriteHeaderAction = menuHeaderAction;
+        config.Selector = menuSelector;
+    });
+
+var menuHistoryReturn = new ConsoleMenu(args, level: 2)
+    .Add("Powrót \n", (thisMenu) =>
+    {
+        manager.DeviceHistoryReturn(HistoryReturnAction.Clear, items: thisMenu.Items);
+        thisMenu.CloseMenu();
+    })
+    .Add(HistoryReturnNames.DeviceId + "\n", (thisMenu) => manager.DeviceHistoryReturn(HistoryReturnAction.DeviceId, thisMenu.CurrentItem))
+    .Add("Wyczyść pola", (thisMenu) => manager.DeviceHistoryReturn(HistoryReturnAction.Clear, items: thisMenu.Items))
+    .Add("Zwróć", (thisMenu) => manager.DeviceHistoryReturn(HistoryReturnAction.Confirm, items: thisMenu.Items))
+    .Configure(config =>
+    {
+        config.Title = "Zarządzanie urządzeniami / Zwrot urządzenia (odpisanie od pracownika) \n";
+        config.EnableWriteTitle = true;
+        config.WriteHeaderAction = menuHeaderAction;
+        config.Selector = menuSelector;
+    });
+
+var menuHistoryAssign = new ConsoleMenu(args, level: 2)
+    .Add("Powrót \n", (thisMenu) =>
+    {
+        manager.DeviceHistoryAssign(HistoryAssignAction.Clear, items: thisMenu.Items);
+        thisMenu.CloseMenu();
+    })
+    .Add(HistoryAssignNames.DeviceId, (thisMenu) => manager.DeviceHistoryAssign(HistoryAssignAction.DeviceId, thisMenu.CurrentItem))
+    .Add(HistoryAssignNames.EmployeeID + "\n", (thisMenu) => manager.DeviceHistoryAssign(HistoryAssignAction.EmployeeId, thisMenu.CurrentItem))
+    .Add("Wyczyść pola", (thisMenu) => manager.DeviceHistoryAssign(HistoryAssignAction.Clear, items: thisMenu.Items))
+    .Add("Dodaj", (thisMenu) => manager.DeviceHistoryAssign(HistoryAssignAction.Confirm, items: thisMenu.Items))
+    .Configure(config =>
+    {
+        config.Title = "Zarządzanie urządzeniami / Przypisz urządzenie do pracownika\n";
+        config.EnableWriteTitle = true;
+        config.WriteHeaderAction = menuHeaderAction;
+        config.Selector = menuSelector;
+    });
+
 var menuHistory = new ConsoleMenu(args, level: 1)
-    .Add("Lista Historia", () => { })
-    .Add("Dodaj Historia", () => { })
-    .Add("Edytuj Historia", () => { })
-    .Add("Usuń Historia \n", () => { })
+    .Add("Przypisz urządzenie do pracownika", () => menuHistoryAssign.Show())
+    .Add("Zwrot urządzenia (odpisanie od pracownika)", () => menuHistoryReturn.Show())
+    .Add("Lista właścicieli danego urzadzenia \n", () => menuHistoryCheck.Show())
     .Add("Powrót", ConsoleMenu.Close)
     .Configure(config =>
     {
-        config.Title = "Historia \n";
+        config.Title = "Zarządzanie urządzeniami \n";
         config.EnableWriteTitle = true;
         config.WriteHeaderAction = menuHeaderAction;
         config.Selector = menuSelector;
@@ -166,7 +232,7 @@ var menuHistory = new ConsoleMenu(args, level: 1)
 var menuMain = new ConsoleMenu(args, level: 0)
     .Add("Pracownicy", () => menuEmployees.Show())
     .Add("Urządzenia", () => menuDevices.Show())
-    .Add("Historia urządzeń \n", () => menuHistory.Show())
+    .Add("Zarządzanie urządzeniami \n", () => menuHistory.Show())
     .Add("Exit", () => Environment.Exit(0))
     .Configure(config =>
     {

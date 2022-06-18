@@ -2,9 +2,9 @@
 {
     internal class Employee
     {
-        public int? EmployeeId { get; set; }
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
+        public int EmployeeId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string? PhoneNumber { get; set; }
         public string? Email { get; set; }
 
@@ -20,10 +20,10 @@
             && !string.IsNullOrEmpty(PhoneNumber)
             && !string.IsNullOrEmpty(Email);
         public bool IsOnePopulated =>
-            EmployeeId is not null
+            EmployeeId != 0
             || IsOnePopulatedWithoutId;
         public bool IsPopulated =>
-            EmployeeId is not null
+            EmployeeId != 0
             && IsPopulatedWithoutId;
 
 
@@ -39,9 +39,9 @@
 
         public void Clear()
         {
-            EmployeeId = null;
-            FirstName = null;
-            LastName = null;
+            EmployeeId = 0;
+            FirstName = "";
+            LastName = "";
             PhoneNumber = null;
             Email = null;
         }

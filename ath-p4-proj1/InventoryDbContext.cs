@@ -8,7 +8,6 @@ namespace ath_p4_proj1
         public DbSet<Models.Employee> Employees { get; set; }
         public DbSet<Models.Device> Devices { get; set; }
         public DbSet<Models.DeviceHistory> DeviceHistories { get; set; }
-        public DbSet<Models.DeviceMalfunction> DeviceMalfunctions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

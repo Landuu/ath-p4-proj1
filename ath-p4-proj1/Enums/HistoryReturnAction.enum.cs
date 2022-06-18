@@ -1,9 +1,9 @@
 ﻿
 namespace ath_p4_proj1.Enums
 {
-    public enum DeviceRemoveAction
+    public enum HistoryReturnAction
     {
-        Id,
+        DeviceId,
         Clear,
         Confirm
     }
