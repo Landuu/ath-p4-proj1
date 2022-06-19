@@ -148,7 +148,7 @@ namespace ath_p4_proj1
                     }
 
                     int skip = 0;
-                    int take = 5;
+                    int take = 10;
                     int count = db.Employees
                             .WhereIf(employee.EmployeeId != 0, x => x.EmployeeId == employee.EmployeeId)
                             .WhereIf(!string.IsNullOrEmpty(employee.FirstName), x => x.FirstName.Contains(employee.FirstName))
@@ -762,6 +762,125 @@ namespace ath_p4_proj1
                     DeviceRemove(DeviceRemoveAction.Clear, items: items);
                     StringValue.QuickWrite("Ok:", "Usunięto rekord z bazy danych");
                     Pause.QuickDisplay();
+                    break;
+            }
+        }
+
+        public void DeviceSearch(DeviceSearchAction action, MenuItem? item = null, IReadOnlyList<MenuItem>? items = null)
+        {
+            using var db = new InventoryDbContext();
+
+            switch (action)
+            {
+                case DeviceSearchAction.Id:
+                    string id = StringValue.QuickRead(DeviceSearchNames.Id);
+                    if (id == "")
+                    {
+                        device.DeviceId = 0;
+                        item.Name = DeviceSearchNames.Id;
+                        break;
+                    }
+                    if (!Validator.NumericId(id))
+                    {
+                        StringValue.QuickWrite("Błąd: ", "Niepoprawne ID, id musi składać się z cyfr dodatnich");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+                    device.DeviceId = Convert.ToInt32(id);
+                    item.Name = DeviceSearchNames.Id + id;
+                    break;
+                case DeviceSearchAction.Manufacturer:
+                    string mn = StringValue.QuickRead(DeviceSearchNames.Manufacturer);
+                    device.Manufacturer = mn;
+                    item.Name = DeviceSearchNames.Manufacturer + mn;
+                    break;
+                case DeviceSearchAction.Model:
+                    string mo = StringValue.QuickRead(DeviceSearchNames.Model);
+                    device.Model = mo;
+                    item.Name = DeviceSearchNames.Model + mo;
+                    break;
+                case DeviceSearchAction.SerialNumber:
+                    string sn = StringValue.QuickRead(DeviceSearchNames.SerialNumber);
+                    device.SerialNumber = sn;
+                    item.Name = DeviceSearchNames.SerialNumber + sn;
+                    break;
+                case DeviceSearchAction.Clear:
+                    device.Clear();
+                    items[1].Name = DeviceSearchNames.Id;
+                    items[2].Name = DeviceSearchNames.Manufacturer;
+                    items[3].Name = DeviceSearchNames.Model;
+                    items[4].Name = DeviceSearchNames.SerialNumber + "\n";
+                    break;
+                case DeviceSearchAction.Confirm:
+                    if (!device.IsOnePopulatedSearch)
+                    {
+                        StringValue.QuickWrite("Błąd:", "Musisz wypełnić chociaż jedno pole!");
+                        Pause.QuickDisplay();
+                        break;
+                    }
+
+                    int skip = 0;
+                    int take = 10;
+                    int count = db.Devices
+                            .WhereIf(device.DeviceId != 0, x => x.DeviceId == device.DeviceId)
+                            .WhereIf(!string.IsNullOrEmpty(device.Manufacturer), x => x.Manufacturer.Contains(device.Manufacturer))
+                            .WhereIf(!string.IsNullOrEmpty(device.Model), x => x.Model.Contains(device.Model))
+                            .WhereIf(!string.IsNullOrEmpty(device.SerialNumber), x => x.SerialNumber.Contains(device.SerialNumber))
+                            .Count();
+
+                    while (true)
+                    {
+                        Console.Clear();
+                        PrintHeader($"Urządzenia / Wyszukaj urządzenie / Lista urządzeń ({count})");
+
+                        var table = new DataGrid();
+                        table.Columns.Add("L.p.");
+                        table.Columns.Add("ID");
+                        table.Columns.Add("Producent");
+                        table.Columns.Add("Model");
+                        table.Columns.Add("Numer seryjny");
+                        table.Columns.Add("Data wpr.");
+                        table.Columns.Add("Data wył.");
+
+
+                        var devices = db.Devices
+                            .WhereIf(device.DeviceId != 0, x => x.DeviceId == device.DeviceId)
+                            .WhereIf(!string.IsNullOrEmpty(device.Manufacturer), x => x.Manufacturer.Contains(device.Manufacturer))
+                            .WhereIf(!string.IsNullOrEmpty(device.Model), x => x.Model.Contains(device.Model))
+                            .WhereIf(!string.IsNullOrEmpty(device.SerialNumber), x => x.SerialNumber.Contains(device.SerialNumber))
+                            .Skip(skip)
+                            .Take(take)
+                            .ToList();
+
+                        for (int i = 0; i < devices.Count; i++)
+                        {
+                            var dd = devices[i];
+                            var dateOfService = dd.DateOfService is null ? "null" : dd.DateOfService.ToString();
+                            var dateOfEOL = dd.DateOfEOL is null ? "null" : dd.DateOfEOL.ToString();
+                            table.Rows.Add(i + 1 + skip, dd.DeviceId, dd.Manufacturer, dd.Model, dd.SerialNumber, dateOfService, dateOfEOL);
+                        }
+
+                        table.Border.Template = BorderTemplate.SingleLineBorderTemplate;
+                        table.Display();
+
+                        var key = Console.ReadKey().Key;
+                        if (key == ConsoleKey.PageUp)
+                        {
+                            if (skip + take > count) continue;
+                            skip += take;
+                        }
+                        else if (key == ConsoleKey.PageDown)
+                        {
+                            if (skip - take < 0) continue;
+                            skip -= take;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    DeviceSearch(DeviceSearchAction.Clear, items: items);
                     break;
             }
         }

@@ -127,6 +127,26 @@ var menuDevicesRemove = new ConsoleMenu(args, level: 2)
         config.Selector = menuSelector;
     });
 
+var menuDevicesSearch = new ConsoleMenu(args, level: 2)
+    .Add("Powrót \n", (thisMenu) =>
+    {
+        manager.DeviceSearch(DeviceSearchAction.Clear, items: thisMenu.Items);
+        thisMenu.CloseMenu();
+    })
+    .Add(DeviceSearchNames.Id, (thisMenu) => manager.DeviceSearch(DeviceSearchAction.Id, thisMenu.CurrentItem))
+    .Add(DeviceSearchNames.Manufacturer, (thisMenu) => manager.DeviceSearch(DeviceSearchAction.Manufacturer, thisMenu.CurrentItem))
+    .Add(DeviceSearchNames.Model, (thisMenu) => manager.DeviceSearch(DeviceSearchAction.Model, thisMenu.CurrentItem))
+    .Add(DeviceSearchNames.SerialNumber + "\n", (thisMenu) => manager.DeviceSearch(DeviceSearchAction.SerialNumber, thisMenu.CurrentItem))
+    .Add("Wyczyść pola", (thisMenu) => manager.DeviceSearch(DeviceSearchAction.Clear, items: thisMenu.Items))
+    .Add("Wyszukaj", (thisMenu) => manager.DeviceSearch(DeviceSearchAction.Confirm, items: thisMenu.Items))
+    .Configure(config =>
+    {
+        config.Title = "Urządzenia / Wyszukaj urządzenie \n";
+        config.EnableWriteTitle = true;
+        config.WriteHeaderAction = menuHeaderAction;
+        config.Selector = menuSelector;
+    });
+
 var menuDevicesAdd = new ConsoleMenu(args, level: 2)
     .Add("Powrót \n", (thisMenu) =>
     {
@@ -149,6 +169,7 @@ var menuDevicesAdd = new ConsoleMenu(args, level: 2)
 var menuDevices = new ConsoleMenu(args, level: 1)
     .Add("Lista urządzeń", () => manager.DevicesList())
     .Add("Dodaj urządzenie", () => menuDevicesAdd.Show())
+    .Add("Wyszukaj urządzenie", () => menuDevicesSearch.Show())
     .Add("Wyłącz z użytku (archiwizacja)", () => menuDevicesArchive.Show())
     .Add("X Usuń urządzenie \n", () => menuDevicesRemove.Show())
     .Add("Powrót", ConsoleMenu.Close)

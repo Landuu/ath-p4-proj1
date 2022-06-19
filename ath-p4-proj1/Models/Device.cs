@@ -28,6 +28,11 @@ namespace ath_p4_proj1.Models
         public bool IsPopulated => 
             IsPopulatedWithoutId
             && DeviceId != 0;
+        public bool IsOnePopulatedSearch =>
+            DeviceId != 0
+            || !string.IsNullOrEmpty(Manufacturer)
+            || !string.IsNullOrEmpty(Model)
+            || !string.IsNullOrEmpty(SerialNumber);
 
         public Device() {
             History = new List<DeviceHistory>();
