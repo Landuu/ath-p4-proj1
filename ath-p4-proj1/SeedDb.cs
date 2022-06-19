@@ -44,7 +44,7 @@ namespace ath_p4_proj1
         public static void Run()
         {
             // Liczba musi być większa niż ~15
-            var baseNumberOfEmployees = 30;
+            var baseNumberOfEmployees = 34;
 
             // Tworzenie losowych pracowników
             var employees = new List<Employee>();
@@ -67,7 +67,7 @@ namespace ath_p4_proj1
                 var ma = GetDeviceManufaturer();
                 var mo = GetDeviceModel();
                 var sn = GetDeviceSerialNumber();
-                var deol = faker.Date.Past(3);
+                var deol = faker.Date.Past(1, new DateTime(2021, 06, 06));
                 var dos = faker.Date.Past(1, deol);
                 var d = new Device(ma, mo, sn, dos);
                 bool isEOL = random.Next(100) <= 15 ? true : false;
