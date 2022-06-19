@@ -33,6 +33,15 @@ namespace ath_p4_proj1.Models
             History = new List<DeviceHistory>();
         }
 
+        public Device(string manufacturer, string model, string serialNumber, DateTime dateOfService)
+        {
+            History = new List<DeviceHistory>();
+            Manufacturer = manufacturer;
+            Model = model;
+            SerialNumber = serialNumber;
+            DateOfService = dateOfService;
+        }
+
         public void Clear()
         {
             DeviceId = 0;

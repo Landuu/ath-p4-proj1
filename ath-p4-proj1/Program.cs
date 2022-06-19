@@ -3,13 +3,16 @@ using ath_p4_proj1.Enums;
 using ConsoleTools;
 
 using var context = new InventoryDbContext();
-context.Database.EnsureCreated();
+bool wasCreated = context.Database.EnsureCreated();
+if(wasCreated)
+{
+    SeedDb.Run();
+}
+
 
 var manager = new CManager();
 var menuSelector = "-->";
 var menuHeaderAction = () => Console.WriteLine(@"\\ Wybór opcji:");
-
-
 
 // Pracownicy
 

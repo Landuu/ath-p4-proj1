@@ -47,11 +47,11 @@ namespace ath_p4_proj1
             while (true)
             {
                 Console.Clear();
-                PrintHeader("Lista pracowników");
+                PrintHeader($"Pracownicy / Lista pracowników ({count})");
 
                 var table = new DataGrid();
                 table.Columns.Add("L.p.");
-                table.Columns.Add("ID pracownika");
+                table.Columns.Add("ID");
                 table.Columns.Add("Imię");
                 table.Columns.Add("Nazwisko");
                 table.Columns.Add("Telefon");
@@ -149,16 +149,22 @@ namespace ath_p4_proj1
 
                     int skip = 0;
                     int take = 5;
-                    int count = 0;
+                    int count = db.Employees
+                            .WhereIf(employee.EmployeeId != 0, x => x.EmployeeId == employee.EmployeeId)
+                            .WhereIf(!string.IsNullOrEmpty(employee.FirstName), x => x.FirstName.Contains(employee.FirstName))
+                            .WhereIf(!string.IsNullOrEmpty(employee.LastName), x => x.LastName.Contains(employee.LastName))
+                            .WhereIf(!string.IsNullOrEmpty(employee.PhoneNumber), x => x.PhoneNumber.Contains(employee.PhoneNumber))
+                            .WhereIf(!string.IsNullOrEmpty(employee.Email), x => x.Email.Contains(employee.Email))
+                            .Count();
 
                     while (true)
                     {
                         Console.Clear();
-                        PrintHeader("Pracownicy / Wyszukaj pracownika / Lista pracowników");
+                        PrintHeader($"Pracownicy / Wyszukaj pracownika / Lista pracowników {count}");
 
                         var table = new DataGrid();
                         table.Columns.Add("L.p.");
-                        table.Columns.Add("ID pracownika");
+                        table.Columns.Add("ID");
                         table.Columns.Add("Imię");
                         table.Columns.Add("Nazwisko");
                         table.Columns.Add("Telefon");
@@ -171,6 +177,8 @@ namespace ath_p4_proj1
                             .WhereIf(!string.IsNullOrEmpty(employee.LastName), x => x.LastName.Contains(employee.LastName))
                             .WhereIf(!string.IsNullOrEmpty(employee.PhoneNumber), x => x.PhoneNumber.Contains(employee.PhoneNumber))
                             .WhereIf(!string.IsNullOrEmpty(employee.Email), x => x.Email.Contains(employee.Email))
+                            .Skip(skip)
+                            .Take(take)
                             .ToList();
                         for (int i = 0; i < employees.Count; i++)
                         {
@@ -245,16 +253,16 @@ namespace ath_p4_proj1
 
                     int skip = 0;
                     int take = 5;
-                    int count = 0;
+                    int count = d.History.Count;
 
                     while (true)
                     {
                         Console.Clear();
-                        PrintHeader("Zarządzanie urządzeniami / Lista właścicieli danego urzadzenia / Lista");
+                        PrintHeader($"Zarządzanie urządzeniami / Lista właścicieli danego urzadzenia / Lista ({count})");
 
                         var tableDevice = new DataGrid();
                         tableDevice.Border.Template = BorderTemplate.SingleLineBorderTemplate;
-                        tableDevice.Columns.Add("ID Urządzenia");
+                        tableDevice.Columns.Add("ID");
                         tableDevice.Columns.Add("Producent");
                         tableDevice.Columns.Add("Model");
                         tableDevice.Columns.Add("Numer seryjny");
@@ -264,7 +272,7 @@ namespace ath_p4_proj1
                         var table = new DataGrid();
                         table.Border.Template = BorderTemplate.SingleLineBorderTemplate;
                         table.Columns.Add("L.p.");
-                        table.Columns.Add("ID Pracownika");
+                        table.Columns.Add("ID prac.");
                         table.Columns.Add("Imię i nazwisko");
                         table.Columns.Add("Data przypisania");
                         table.Columns.Add("Data zwrócenia");
@@ -272,9 +280,10 @@ namespace ath_p4_proj1
                         var deol = d.DateOfEOL is null ? "null" : d.DateOfEOL.ToString();
                         tableDevice.Rows.Add(d.DeviceId, d.Manufacturer, d.Model, d.SerialNumber, d.DateOfService, deol);
 
-                        for(int i = 0; i < d.History.Count; i++)
+                        var histories = d.History.Skip(skip).Take(take).ToList();
+                        for(int i = 0; i < histories.Count; i++)
                         {
-                            var h = d.History[i];
+                            var h = histories[i];
                             var dr = h.DateOfReturn is null ? "null" : h.DateOfReturn.ToString();
                             table.Rows.Add(i + 1 + skip, h.Employee.EmployeeId, $"{h.Employee.FirstName} {h.Employee.LastName}", h.DateOfAssignment, dr);
                         }
@@ -349,7 +358,7 @@ namespace ath_p4_proj1
                         break;
                     }
 
-                    dIsAssigned.DateOfReturn = DateTime.UtcNow;
+                    dIsAssigned.DateOfReturn = DateTime.Now;
                     db.SaveChanges();
                     DeviceHistoryReturn(HistoryReturnAction.Clear, items: items);
                     StringValue.QuickWrite("Ok: ", "Zwrócono urządzenie");
@@ -439,7 +448,7 @@ namespace ath_p4_proj1
                     }
 
                     var h = new Models.DeviceHistory();
-                    h.DateOfAssignment = DateTime.UtcNow;
+                    h.DateOfAssignment = DateTime.Now;
                     h.Employee = e;
                     h.Device = d;
                     db.DeviceHistories.Add(h);
@@ -616,11 +625,11 @@ namespace ath_p4_proj1
             while (true)
             {
                 Console.Clear();
-                PrintHeader("Urządzenia / Lista urządzeń");
+                PrintHeader($"Urządzenia / Lista urządzeń ({count})");
 
                 var table = new DataGrid();
                 table.Columns.Add("L.p.");
-                table.Columns.Add("ID urządzenia");
+                table.Columns.Add("ID");
                 table.Columns.Add("Producent");
                 table.Columns.Add("Model");
                 table.Columns.Add("Numer seryjny");
@@ -685,7 +694,7 @@ namespace ath_p4_proj1
                     items[3].Name = DeviceAddNames.SerialNumber + "\n";
                     break;
                 case DeviceAddAction.Confirm:
-                    device.DateOfService = DateTime.UtcNow;
+                    device.DateOfService = DateTime.Now;
                     if (!device.IsPopulatedWithoutId)
                     {
                         StringValue.QuickWrite("Błąd!", "Musisz wypełnic wszystkie pola!");
@@ -812,7 +821,7 @@ namespace ath_p4_proj1
                         break;
                     }
 
-                    d.DateOfEOL = DateTime.UtcNow;
+                    d.DateOfEOL = DateTime.Now;
                     db.SaveChanges();
                     DeviceArchive(DeviceRemoveAction.Clear, items: items);
                     StringValue.QuickWrite("Ok:", "Zarchiwizowano urządzenie");

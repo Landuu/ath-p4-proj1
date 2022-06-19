@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Bogus" Version="34.0.2" />
     <PackageReference Include="ConsoleMenu-simple" Version="2.4.3" />
     <PackageReference Include="ConsoleTools" Version="1.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.6" />
